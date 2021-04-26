@@ -1,0 +1,47 @@
+server:
+  port: 9090
+
+app:
+  name: ApiGateway
+  description: Gateway Api for Dystolab by the akatsuki group
+dystolab:
+  jwtSecret: "@secretDystolabkey25418786@"
+  jwtExpirationMs: 86400000
+zuul:
+  sslHostnameValidationEnabled: false
+  ignored-services: "*"
+  routes:
+    user:
+      path: /user/**
+      sensitive-headers: "Cookie,Set-Cookie"
+      #strip-prefix: false
+      serviceId: users_service
+      url: http://localhost:6100
+    patient:
+      path: /patient/**
+      sensitive-headers: "Cookie,Set-Cookie"
+      #strip-prefix: false
+      serviceId: patient_service
+      url: http://localhost:7100
+    injection:
+      path: /injection/**
+      sensitive-headers: "Cookie,Set-Cookie"
+      #strip-prefix: false
+      serviceId: injection_service
+      url: http://localhost:8100
+  sensitive-headers: Cookie,Set-Cookie
+
+ribbon:
+  eureka:
+    enabled: false
+  ConnectTimeout: 3000
+  ReadTimeout: 60000
+
+userservice:
+  url: http://localhost:6100/
+
+patientservice:
+  url: http://localhost:7100/
+
+injectionservice:
+  url: http://localhost:8100/

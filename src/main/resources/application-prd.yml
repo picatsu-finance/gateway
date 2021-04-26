@@ -1,0 +1,55 @@
+server:
+  port: 9090
+spring:
+  application:
+    name: ApiGateway
+app:
+  name: ApiGateway
+  description: Gateway Api
+
+zuul:
+  sslHostnameValidationEnabled: false
+  ignored-services: "*"
+  routes:
+    crypto:
+      path: /crypto/**
+      sensitive-headers: "Cookie,Set-Cookie"
+      #strip-prefix: false
+      serviceId: crypto_service
+      url: http://146.59.195.214:8001
+    forex:
+      path: /forex/**
+      sensitive-headers: "Cookie,Set-Cookie"
+      #strip-prefix: false
+      serviceId: forex_service
+      url: http://146.59.195.214:8002
+    stock:
+      path: /stock/**
+      sensitive-headers: "Cookie,Set-Cookie"
+      #strip-prefix: false
+      serviceId: stock_service
+      url: http://146.59.195.214:8003
+    custom:
+      path: /custom/**
+      sensitive-headers: "Cookie,Set-Cookie"
+      #strip-prefix: false
+      serviceId: custom_service
+      url: http://146.59.195.214:8004
+    earnings:
+      path: /earnings/**
+      sensitive-headers: "Cookie,Set-Cookie"
+      #strip-prefix: false
+      serviceId: earnings_service
+      url: http://146.59.195.214:4000
+
+  sensitive-headers: Cookie,Set-Cookie
+
+ribbon:
+  eureka:
+    enabled: false
+  ConnectTimeout: 3000
+  ReadTimeout: 60000
+
+
+
+

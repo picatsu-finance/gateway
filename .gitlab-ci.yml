@@ -1,0 +1,64 @@
+image: openjdk:12-jdk-alpine
+
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+before_script:
+  - echo "Hopefully the resulting code will push well and smoothly."
+  - echo `pwd`
+  - export GRADLE_USER_HOME=`pwd`/.gradle
+  # Remove caches
+  - rm -f .gradle/caches/modules-2/modules-2.lock
+  - rm -fr .gradle/caches/*/plugin-resolution/
+
+stages:
+  - build
+  - test
+  - deploy
+
+  #cache:
+  # paths:
+  # - .gradle / wrapper
+  # - .gradle / caches
+
+Build:
+  stage: build
+  script: ./gradlew --build-cache assemble -Dspring.profiles.active=stg
+
+Test:
+  stage: test
+  script: ./gradlew check
+  
+Integration:
+  only:
+    - integration
+  image: ruby
+  stage: deploy
+  before_script:
+    - gem install dpl
+    - wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
+  script:
+    - dpl --provider=Heroku --app=$HEROKU_APPNAME_GATEWAY --api-key=$HEROKU_APIKEY
+    - export HEROKU_API_KEY=$HEROKU_APIKEY
+  environment:
+    name: production
+    url: $HEROKU_APPHOST_GATEWAY
+
+Production:
+  only:
+    - master
+  image: ruby
+  stage: deploy
+  before_script:
+    - gem install dpl
+    - wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
+  script:
+    - dpl --provider=Heroku --app=$HEROKU_APPNAME_GATEWAY_PROD --api-key=$HEROKU_APIKEY_PROD
+    - export HEROKU_API_KEY=$HEROKU_APIKEY_PROD
+  environment:
+    name: production
+    url: $HEROKU_APPHOST_GATEWAY_PROD
+
+
+after_script:
+  - echo "Yeeeayyy finally finished !!!"
